@@ -1,21 +1,30 @@
 package com.harsh.roomify.service.impl;
 
 import com.harsh.roomify.dto.PackageComparisonDTO;
+import com.harsh.roomify.enums.FacilityType;
+import com.harsh.roomify.exception.BadRequestException;
+import com.harsh.roomify.exception.ResourceNotFoundException;
 import com.harsh.roomify.model.Facility;
 import com.harsh.roomify.model.PackageEntity;
 import com.harsh.roomify.model.User;
 import com.harsh.roomify.repository.FacilityRepository;
 import com.harsh.roomify.repository.PackageEntityRepository;
 import com.harsh.roomify.repository.UserRepository;
+import com.harsh.roomify.security.SecurityUtil;
 import com.harsh.roomify.service.PackageEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PackageEntityServiceImpl implements PackageEntityService {
+    private static final List<FacilityType> SINGLE_ALLOWED_TYPES =
+            List.of(FacilityType.ROOM, FacilityType.HOSTEL);
+
     private final PackageEntityRepository packageEntityRepository;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
@@ -27,10 +36,26 @@ public class PackageEntityServiceImpl implements PackageEntityService {
     }
 
     @Override
-    public PackageEntity createPackage(Long userId, String name, List<Long> facilityIds) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    public PackageEntity createPackage(String name, List<Long> facilityIds) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Facility> facilities = facilityRepository.findAllById(facilityIds);
+
+        Map<FacilityType, Long> typeCountMap = facilities.stream()
+                .collect(Collectors.groupingBy(
+                        Facility::getType,
+                        Collectors.counting()
+                ));
+
+        for (FacilityType type : SINGLE_ALLOWED_TYPES) {
+            if (typeCountMap.getOrDefault(type, 0L) > 1) {
+                throw new BadRequestException(
+                        "Only one " + type + " is allowed per package"
+                );
+            }
+        }
 
         double totalPrice = facilities.stream().mapToDouble(f -> f.getPrice() != null ? f.getPrice() : 0).sum();
 
@@ -51,19 +76,41 @@ public class PackageEntityServiceImpl implements PackageEntityService {
     }
 
     @Override
-    public List<PackageComparisonDTO> comparePackages(Long userId, List<Long> packageIds) {
+    public List<PackageComparisonDTO> comparePackages(List<Long> packageIds) {
+        Long userId = SecurityUtil.getCurrentUserId();
 
-        List<PackageEntity> packages = packageEntityRepository.findAllById(packageIds);
+        List<PackageEntity> packages = packageEntityRepository.findByUserIdAndIdIn(userId,packageIds);
 
-        return packages.stream().map(pkg -> {
+        List<PackageComparisonDTO> result = packages.stream().map(pkg -> {
             PackageComparisonDTO dto = new PackageComparisonDTO();
             dto.setPackageId(pkg.getId());
             dto.setPackageName(pkg.getName());
             dto.setTotalPrice(pkg.getTotalPrice());
-
             dto.setFacilityCount(pkg.getFacilities().size());
+
             dto.setFacilityTypes(pkg.getFacilities().stream().map(f -> f.getType().name()).distinct().toList());
             return dto;
         }).toList();
+
+        double minPrice = result.stream()
+                .mapToDouble(PackageComparisonDTO::getTotalPrice)
+                .min()
+                .orElse(0);
+
+        result.forEach(dto ->
+                dto.setCheapest(dto.getTotalPrice() == minPrice)
+        );
+        PackageComparisonDTO bestValuePkg = result.stream()
+                .max((a, b) -> Double.compare(
+                        a.getFacilityCount() / a.getTotalPrice(),
+                        b.getFacilityCount() / b.getTotalPrice()
+                ))
+                .orElse(null);
+
+        if (bestValuePkg != null) {
+            bestValuePkg.setBestValue(true);
+        }
+
+        return result;
     }
 }

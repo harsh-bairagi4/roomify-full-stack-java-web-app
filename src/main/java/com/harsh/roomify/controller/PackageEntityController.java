@@ -18,15 +18,15 @@ public class PackageEntityController {
         this.packageEntityService = packageEntityService;
     }
     @PostMapping
-    public PackageEntity createPackage(@RequestParam Long userId, @RequestParam String name, @RequestBody List<Long> facilityIds){
-        return packageEntityService.createPackage(userId, name, facilityIds);
+    public PackageEntity createPackage(@RequestParam String name, @RequestBody List<Long> facilityIds){
+        return packageEntityService.createPackage(name, facilityIds);
     }
     @GetMapping("/user/{userId}")
     public List<PackageEntity> getUserPackages(@PathVariable Long userId){
         return packageEntityService.getUserPackages(userId);
     }
     @PostMapping("/compare")
-    public List<PackageComparisonDTO> comparePackages(@RequestParam Long userId, @RequestBody List<Long> packageIds){
-        return packageEntityService.comparePackages(userId, packageIds);
+    public List<PackageComparisonDTO> comparePackages(@RequestBody List<Long> packageIds){
+        return packageEntityService.comparePackages(packageIds);
     }
 }

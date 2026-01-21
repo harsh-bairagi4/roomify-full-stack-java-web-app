@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PackageEntityRepository extends JpaRepository<PackageEntity, Long> {
     List<PackageEntity> findByUserId(Long userId);
+    List<PackageEntity> findByUserIdAndIdIn(Long userId, List<Long> packageIds);
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface PackageEntityService {
-    PackageEntity createPackage(Long userId, String name, List<Long> facilityIds);
+    PackageEntity createPackage(String name, List<Long> facilityIds);
     List<PackageEntity> getUserPackages(Long userId);
-    List<PackageComparisonDTO> comparePackages(Long userId, List<Long> packageIds);
+    List<PackageComparisonDTO> comparePackages(List<Long> packageIds);
 }

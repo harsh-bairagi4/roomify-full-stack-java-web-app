@@ -7,6 +7,8 @@ public class PackageComparisonDTO {
     private String packageName;
     private Double totalPrice;
     private int facilityCount;
+    private boolean cheapest;
+    private boolean bestValue;
     private List<String> facilityTypes;
 
     public Long getPackageId() {
@@ -39,6 +41,22 @@ public class PackageComparisonDTO {
 
     public void setFacilityCount(int facilityCount) {
         this.facilityCount = facilityCount;
+    }
+
+    public boolean isCheapest() {
+        return cheapest;
+    }
+
+    public void setCheapest(boolean cheapest) {
+        this.cheapest = cheapest;
+    }
+
+    public boolean isBestValue() {
+        return bestValue;
+    }
+
+    public void setBestValue(boolean bestValue) {
+        this.bestValue = bestValue;
     }
 
     public List<String> getFacilityTypes() {
