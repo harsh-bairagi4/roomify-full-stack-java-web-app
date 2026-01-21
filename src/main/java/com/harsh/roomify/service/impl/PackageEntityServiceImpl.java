@@ -1,5 +1,6 @@
 package com.harsh.roomify.service.impl;
 
+import com.harsh.roomify.dto.PackageComparisonDTO;
 import com.harsh.roomify.model.Facility;
 import com.harsh.roomify.model.PackageEntity;
 import com.harsh.roomify.model.User;
@@ -47,5 +48,22 @@ public class PackageEntityServiceImpl implements PackageEntityService {
     @Override
     public List<PackageEntity> getUserPackages(Long userId) {
         return packageEntityRepository.findByUserId((userId));
+    }
+
+    @Override
+    public List<PackageComparisonDTO> comparePackages(Long userId, List<Long> packageIds) {
+
+        List<PackageEntity> packages = packageEntityRepository.findAllById(packageIds);
+
+        return packages.stream().map(pkg -> {
+            PackageComparisonDTO dto = new PackageComparisonDTO();
+            dto.setPackageId(pkg.getId());
+            dto.setPackageName(pkg.getName());
+            dto.setTotalPrice(pkg.getTotalPrice());
+
+            dto.setFacilityCount(pkg.getFacilities().size());
+            dto.setFacilityTypes(pkg.getFacilities().stream().map(f -> f.getType().name()).distinct().toList());
+            return dto;
+        }).toList();
     }
 }

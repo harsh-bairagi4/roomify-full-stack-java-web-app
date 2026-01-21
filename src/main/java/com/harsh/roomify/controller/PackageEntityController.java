@@ -1,5 +1,6 @@
 package com.harsh.roomify.controller;
 
+import com.harsh.roomify.dto.PackageComparisonDTO;
 import com.harsh.roomify.model.PackageEntity;
 import com.harsh.roomify.service.PackageEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +24,9 @@ public class PackageEntityController {
     @GetMapping("/user/{userId}")
     public List<PackageEntity> getUserPackages(@PathVariable Long userId){
         return packageEntityService.getUserPackages(userId);
+    }
+    @PostMapping("/compare")
+    public List<PackageComparisonDTO> comparePackages(@RequestParam Long userId, @RequestBody List<Long> packageIds){
+        return packageEntityService.comparePackages(userId, packageIds);
     }
 }
