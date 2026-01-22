@@ -3,6 +3,7 @@ package com.harsh.roomify.exception;
 import com.harsh.roomify.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,6 +25,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex){
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.value(), "Access denied"), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex){
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .get(0).getDefaultMessage();
+
+        return new ResponseEntity<>(new ErrorResponse(400, errorMessage), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

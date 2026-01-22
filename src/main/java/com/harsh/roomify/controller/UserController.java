@@ -2,6 +2,7 @@ package com.harsh.roomify.controller;
 
 import com.harsh.roomify.model.User;
 import com.harsh.roomify.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,7 @@ public class UserController {
         this.userService = userService;
     }
     @PostMapping("/register")
-    public User register(@RequestBody User user){
+    public User register(@Valid @RequestBody User user){
         return userService.registerUser(user);
     }
 }

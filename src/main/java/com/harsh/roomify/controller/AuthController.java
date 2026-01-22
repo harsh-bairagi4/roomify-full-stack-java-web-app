@@ -4,6 +4,7 @@ import com.harsh.roomify.config.JwtUtil;
 import com.harsh.roomify.enums.Role;
 import com.harsh.roomify.model.User;
 import com.harsh.roomify.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +28,7 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
     @PostMapping("/register")
-    public String register(@RequestBody User user){
+    public String register(@Valid @RequestBody User user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
         userRepository.save(user);
@@ -36,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody User request){
+    public Map<String, String> login(@Valid @RequestBody User request){
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {

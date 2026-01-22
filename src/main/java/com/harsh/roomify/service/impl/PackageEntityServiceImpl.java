@@ -1,6 +1,8 @@
 package com.harsh.roomify.service.impl;
 
+import com.harsh.roomify.dto.FacilitySummaryDTO;
 import com.harsh.roomify.dto.PackageComparisonDTO;
+import com.harsh.roomify.dto.PackageResponseDTO;
 import com.harsh.roomify.enums.FacilityType;
 import com.harsh.roomify.exception.BadRequestException;
 import com.harsh.roomify.exception.ResourceNotFoundException;
@@ -36,7 +38,7 @@ public class PackageEntityServiceImpl implements PackageEntityService {
     }
 
     @Override
-    public PackageEntity createPackage(String name, List<Long> facilityIds) {
+    public PackageResponseDTO createPackage(String name, List<Long> facilityIds) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -66,13 +68,15 @@ public class PackageEntityServiceImpl implements PackageEntityService {
         pkg.setTotalPrice(totalPrice);
         pkg.setCreatedAt(LocalDateTime.now());
 
-        return packageEntityRepository.save(pkg);
+        packageEntityRepository.save(pkg);
+
+        return mapToDto(pkg);
 
     }
 
     @Override
-    public List<PackageEntity> getUserPackages(Long userId) {
-        return packageEntityRepository.findByUserId((userId));
+    public List<PackageResponseDTO> getUserPackages(Long userId) {
+        return packageEntityRepository.findByUserId(userId);
     }
 
     @Override
@@ -112,5 +116,26 @@ public class PackageEntityServiceImpl implements PackageEntityService {
         }
 
         return result;
+    }
+
+    private PackageResponseDTO mapToDto(PackageEntity pkg){
+        PackageResponseDTO dto = new PackageResponseDTO();
+        dto.setId(pkg.getId());
+        dto.setName(pkg.getName());
+        dto.setTotalPrice(pkg.getTotalPrice());
+        dto.setCreatedAt(pkg.getCreatedAt());
+
+        dto.setFacilities(
+                pkg.getFacilities().stream().map(f -> {
+                    FacilitySummaryDTO fDto = new FacilitySummaryDTO();
+                    fDto.setId(f.getId());
+                    fDto.setName(f.getName());
+                    fDto.setType(f.getType().name());
+                    fDto.setPrice(f.getPrice());
+                    fDto.setLocation(f.getLocation());
+                    return fDto;
+                }).toList()
+        );
+        return dto;
     }
 }

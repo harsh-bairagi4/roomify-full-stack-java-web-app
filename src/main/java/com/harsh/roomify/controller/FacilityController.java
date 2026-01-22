@@ -2,6 +2,7 @@ package com.harsh.roomify.controller;
 
 import com.harsh.roomify.model.Facility;
 import com.harsh.roomify.service.FacilityService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class FacilityController {
         this.facilityService = facilityService;
     }
     @PostMapping
-    public Facility addFacility(@RequestBody Facility facility){
+    public Facility addFacility(@Valid @RequestBody Facility facility){
         return facilityService.addFacility(facility);
     }
     @GetMapping

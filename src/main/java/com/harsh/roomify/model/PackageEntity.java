@@ -1,6 +1,8 @@
 package com.harsh.roomify.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,6 +12,7 @@ public class PackageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "Package name cannot be empty")
     private String name;
     private Double totalPrice;
     private LocalDateTime createdAt;

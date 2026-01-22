@@ -2,6 +2,9 @@ package com.harsh.roomify.model;
 
 import com.harsh.roomify.enums.FacilityType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "facilities")
@@ -9,12 +12,16 @@ public class Facility {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "Facility name is required")
     @Column(nullable = false)
     private String name;
+    @NotNull(message = "Facility type is required")
     @Enumerated(EnumType.STRING)
     private FacilityType type;
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be greater than 0")
     private Double price;
-
+    @NotBlank(message = "Location is required")
     private String location;
     @Lob
     private String detailsJson;

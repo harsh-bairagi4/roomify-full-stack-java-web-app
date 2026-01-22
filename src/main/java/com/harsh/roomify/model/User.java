@@ -2,6 +2,10 @@ package com.harsh.roomify.model;
 
 import com.harsh.roomify.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -10,11 +14,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "names", nullable = false)
+    @NotBlank(message = "Name cannot be blank")
     private String name;
     @Column(name = "emails", unique = true, nullable = false)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
     @Column(name = "passwords", nullable = false)
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+    @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
     private Role role;
 
