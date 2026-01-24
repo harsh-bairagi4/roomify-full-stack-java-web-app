@@ -32,7 +32,7 @@ build/
 
 ### VS Code ###
 .vscode/
-# ================= FRONTEND =================
+# =================FRONTEND=================
 frontend/node_modules/
 frontend/dist/
 frontend/build/
