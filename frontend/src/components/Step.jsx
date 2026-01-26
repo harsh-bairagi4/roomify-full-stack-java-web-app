@@ -1,4 +1,4 @@
-import { steps } from "@/assets/asset";
+import { steps } from "@/assets/assets";
 import React from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from './ui/card'
 import * as Icons from "lucide-react";
